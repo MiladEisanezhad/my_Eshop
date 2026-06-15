@@ -1,0 +1,201 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}My Account — MiladStore{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold mb-8">My Account</h1>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+
+        <!-- Sidebar Nav -->
+        <aside class="lg:w-1/4">
+            <div class="bg-white rounded-xl shadow p-6">
+                <div class="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100">
+                    <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl">
+                        {{ user.first_name.0|upper|default:user.username.0|upper }}
+                    </div>
+                    <div>
+                        <p class="font-bold">{{ user.get_full_name|default:user.username }}</p>
+                        <p class="text-sm text-gray-500">{{ user.email }}</p>
+                    </div>
+                </div>
+                <nav class="space-y-1">
+                    <button onclick="showTab('orders')" id="tab-orders" class="account-tab w-full text-left px-4 py-2 rounded-lg hover:bg-gray-50 font-semibold text-primary bg-red-50">
+                        <i class="fas fa-shopping-bag mr-2 w-4"></i>My Orders
+                    </button>
+                    <button onclick="showTab('profile')" id="tab-profile" class="account-tab w-full text-left px-4 py-2 rounded-lg hover:bg-gray-50 text-gray-600 hover:text-primary">
+                        <i class="fas fa-user mr-2 w-4"></i>Profile Settings
+                    </button>
+                    <button onclick="showTab('address')" id="tab-address" class="account-tab w-full text-left px-4 py-2 rounded-lg hover:bg-gray-50 text-gray-600 hover:text-primary">
+                        <i class="fas fa-map-marker-alt mr-2 w-4"></i>Default Address
+                    </button>
+                    <a href="{% url 'wishlist' %}" class="block px-4 py-2 rounded-lg hover:bg-gray-50 text-gray-600 hover:text-primary font-semibold">
+                        <i class="fas fa-heart mr-2 w-4"></i>Wishlist
+                    </a>
+                    <a href="{% url 'logout' %}" class="block px-4 py-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 font-semibold">
+                        <i class="fas fa-sign-out-alt mr-2 w-4"></i>Logout
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="lg:w-3/4">
+
+            <!-- Orders Tab -->
+            <div id="panel-orders" class="account-panel">
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h2 class="text-xl font-bold mb-6">My Orders</h2>
+                    {% if orders %}
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-2 text-sm font-semibold text-gray-500">Order #</th>
+                                    <th class="text-left py-3 px-2 text-sm font-semibold text-gray-500">Date</th>
+                                    <th class="text-left py-3 px-2 text-sm font-semibold text-gray-500">Status</th>
+                                    <th class="text-left py-3 px-2 text-sm font-semibold text-gray-500">Payment</th>
+                                    <th class="text-right py-3 px-2 text-sm font-semibold text-gray-500">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                                    <td class="py-4 px-2">
+                                        <a href="{% url 'order_confirmation' order.order_number %}" class="text-primary font-semibold hover:underline text-sm">
+                                            #{{ order.order_number|truncatechars:10 }}
+                                        </a>
+                                    </td>
+                                    <td class="py-4 px-2 text-sm text-gray-600">{{ order.created_at|date:"M j, Y" }}</td>
+                                    <td class="py-4 px-2">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold
+                                            {% if order.status == 'delivered' %}bg-green-100 text-green-700
+                                            {% elif order.status == 'shipped' %}bg-blue-100 text-blue-700
+                                            {% elif order.status == 'cancelled' %}bg-red-100 text-red-700
+                                            {% elif order.status == 'processing' %}bg-yellow-100 text-yellow-700
+                                            {% else %}bg-gray-100 text-gray-700{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-2">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold
+                                            {% if order.payment_status == 'paid' %}bg-green-100 text-green-700
+                                            {% elif order.payment_status == 'failed' %}bg-red-100 text-red-700
+                                            {% else %}bg-gray-100 text-gray-700{% endif %}">
+                                            {{ order.get_payment_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-2 text-right font-bold">${{ order.total }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-16">
+                        <i class="fas fa-box-open text-5xl text-gray-200 mb-4"></i>
+                        <p class="text-gray-500 font-semibold">No orders yet</p>
+                        <a href="{% url 'shop' %}" class="mt-4 inline-block bg-primary text-white px-6 py-2 rounded-full font-semibold">Start Shopping</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="panel-profile" class="account-panel hidden">
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h2 class="text-xl font-bold mb-6">Profile Settings</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="_tab" value="profile">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-semibold mb-1">First Name</label>
+                                <input type="text" name="first_name" value="{{ user.first_name }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-1">Last Name</label>
+                                <input type="text" name="last_name" value="{{ user.last_name }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-1">Email</label>
+                                <input type="email" name="email" value="{{ user.email }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-1">Phone</label>
+                                <input type="tel" name="phone" value="{{ profile.phone }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                            </div>
+                        </div>
+                        <button type="submit" class="mt-6 bg-primary hover:bg-transparent border border-primary text-white hover:text-primary font-semibold px-8 py-2 rounded-full transition-all">
+                            Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Address Tab -->
+            <div id="panel-address" class="account-panel hidden">
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h2 class="text-xl font-bold mb-6">Default Shipping Address</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="_tab" value="address">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-1">Address Line 1</label>
+                                <input type="text" name="address_line1" value="{{ profile.default_address_line1 }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-1">City</label>
+                                    <input type="text" name="city" value="{{ profile.default_city }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-1">ZIP Code</label>
+                                    <input type="text" name="zip" value="{{ profile.default_zip }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-1">Country</label>
+                                <input type="text" name="country" value="{{ profile.default_country }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                            </div>
+                        </div>
+                        <button type="submit" class="mt-6 bg-primary hover:bg-transparent border border-primary text-white hover:text-primary font-semibold px-8 py-2 rounded-full transition-all">
+                            Save Address
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showTab(name) {
+    document.querySelectorAll('.account-panel').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('.account-tab').forEach(b => {
+        b.classList.remove('text-primary', 'bg-red-50');
+        b.classList.add('text-gray-600');
+    });
+    document.getElementById('panel-' + name).classList.remove('hidden');
+    const btn = document.getElementById('tab-' + name);
+    if (btn) {
+        btn.classList.add('text-primary', 'bg-red-50');
+        btn.classList.remove('text-gray-600');
+    }
+}
+</script>
+{% endblock %}

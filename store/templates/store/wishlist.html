@@ -1,0 +1,82 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Wishlist — MiladStore{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold mb-8">
+        My Wishlist
+        <span class="text-gray-400 text-lg font-normal">({{ wishlist.products.count }} item{{ wishlist.products.count|pluralize }})</span>
+    </h1>
+
+    {% if wishlist.products.exists %}
+    <div class="flex flex-wrap -mx-4">
+        {% for product in wishlist.products.all %}
+        <div class="w-full sm:w-1/2 lg:w-1/4 px-4 mb-8">
+            <div class="bg-white p-3 rounded-xl shadow-lg group relative">
+                <!-- Remove from wishlist -->
+                <button onclick="removeFromWishlist({{ product.id }}, this)"
+                        class="absolute top-4 right-4 z-10 text-primary hover:text-gray-400 transition-colors" title="Remove from wishlist">
+                    <i class="fas fa-heart text-lg"></i>
+                </button>
+
+                <!-- Badge -->
+                {% if product.discount_percent %}
+                <span class="absolute top-4 left-4 bg-primary text-white text-xs font-bold px-2 py-1 rounded z-10">-{{ product.discount_percent }}%</span>
+                {% endif %}
+
+                <a href="{{ product.get_absolute_url }}">
+                    <img src="{{ product.get_main_image_url }}" alt="{{ product.name }}"
+                         class="w-full h-52 object-cover mb-4 rounded-lg group-hover:opacity-90 transition-opacity">
+                </a>
+                <a href="{{ product.get_absolute_url }}" class="text-lg font-semibold mb-1 block hover:text-primary transition-colors line-clamp-2">{{ product.name }}</a>
+                <p class="my-1 text-sm text-gray-500">{{ product.category.name }}</p>
+                <div class="flex items-center mb-4">
+                    <span class="text-lg font-bold {% if product.is_on_sale %}text-primary{% endif %}">${{ product.price }}</span>
+                    {% if product.compare_price %}<span class="text-sm line-through ml-2 text-gray-400">${{ product.compare_price }}</span>{% endif %}
+                </div>
+                {% if product.is_in_stock %}
+                <button onclick="addToCart({{ product.id }})"
+                        class="bg-primary border border-transparent hover:bg-transparent hover:border-primary text-white hover:text-primary font-semibold py-2 px-4 rounded-full w-full transition-all">
+                    Add to Cart
+                </button>
+                {% else %}
+                <button disabled class="bg-gray-300 text-gray-500 font-semibold py-2 px-4 rounded-full w-full cursor-not-allowed">Out of Stock</button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-24">
+        <i class="fas fa-heart text-7xl text-gray-200 mb-6"></i>
+        <h2 class="text-2xl font-semibold text-gray-500 mb-4">Your wishlist is empty</h2>
+        <p class="text-gray-400 mb-8">Save items you love by clicking the heart icon on any product.</p>
+        <a href="{% url 'shop' %}" class="bg-primary hover:bg-transparent border border-primary text-white hover:text-primary font-bold px-8 py-3 rounded-full transition-all inline-block">
+            Browse Products
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function removeFromWishlist(productId, btn) {
+    fetch(`/wishlist/toggle/${productId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.added) {
+            const card = btn.closest('.w-full');
+            card.style.transition = 'opacity 0.3s';
+            card.style.opacity = '0';
+            setTimeout(() => { card.remove(); }, 300);
+        }
+    });
+}
+</script>
+{% endblock %}

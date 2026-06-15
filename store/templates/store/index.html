@@ -1,0 +1,307 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}MiladStore — Fashion & Style{% endblock %}
+
+{% block content %}
+
+    <!-- ── HERO SLIDER ─────────────────────────────────────────────────────────── -->
+    <section id="product-slider" class="relative">
+        <div class="main-slider swiper-container">
+            <div class="swiper-wrapper">
+                {% if banners %}
+                    {% for banner in banners %}
+                        <div class="swiper-slide">
+                            <img src="{{ banner.image.url }}" alt="{{ banner.title }}">
+                            <div class="swiper-slide-content">
+                                <h2 class="text-3xl md:text-7xl font-bold text-white mb-2 md:mb-4">{{ banner.title }}</h2>
+                                {% if banner.subtitle %}
+                                    <p class="mb-4 text-white md:text-2xl">{{ banner.subtitle }}</p>
+                                {% endif %}
+                                {% if banner.link_url %}
+                                    <a href="{{ banner.link_url }}"
+                                       class="bg-primary hover:bg-transparent text-white hover:text-white border border-transparent hover:border-white font-semibold px-4 py-2 rounded-full inline-block">
+                                        {{ banner.link_text|default:"Shop now" }}
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Default slides when no banners in DB -->
+                    <div class="swiper-slide">
+                        <img src="{% static 'images/main-slider/5.jpg' %}" alt="Women Collection">
+                        <div class="swiper-slide-content">
+                            <h2 class="text-3xl md:text-7xl font-bold text-white mb-2 md:mb-4">Women</h2>
+                            <p class="mb-4 text-white md:text-2xl">Experience the best in fashion with our latest
+                                collection.</p>
+                            <a href="{% url 'shop' %}?gender=women"
+                               class="bg-primary hover:bg-transparent text-white border border-transparent hover:border-white font-semibold px-4 py-2 rounded-full inline-block">Shop
+                                now</a>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="{% static 'images/main-slider/2.png' %}" alt="Men Collection">
+                        <div class="swiper-slide-content">
+                            <h2 class="text-3xl md:text-7xl font-bold text-white mb-2 md:mb-4">Men</h2>
+                            <p class="mb-4 text-white md:text-2xl">Discover the latest trends in men's fashion.</p>
+                            <a href="{% url 'shop' %}?gender=men"
+                               class="bg-white hover:bg-transparent text-black hover:text-white font-semibold px-4 py-2 rounded-full inline-block border border-transparent hover:border-white">Shop
+                                now</a>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="{% static 'images/main-slider/4.jpg' %}" alt="Accessories">
+                        <div class="swiper-slide-content">
+                            <h2 class="text-3xl md:text-7xl font-bold text-white mb-2 md:mb-4">Accessories</h2>
+                            <p class="mb-4 text-white md:text-2xl">Elevate your style with our latest collection.</p>
+                            <a href="{% url 'shop' %}"
+                               class="bg-primary hover:bg-transparent text-white border border-transparent hover:border-white font-semibold px-4 py-2 rounded-full inline-block">Shop
+                                now</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+    </section>
+
+    <!-- ── CATEGORY BANNERS ───────────────────────────────────────────────────── -->
+    <section id="product-banners">
+        <div class="container mx-auto py-10">
+            <div class="flex flex-wrap -mx-4">
+                {% if category_banners %}
+                    {% for banner in category_banners %}
+                        <div class="w-full sm:w-1/3 px-4 mb-8">
+                            <div class="category-banner relative overflow-hidden rounded-lg shadow-lg group">
+                                <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="w-full h-auto">
+                                <div class="absolute inset-0 bg-gray-light bg-opacity-50"></div>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4">
+                                    <h2 class="text-2xl md:text-3xl font-bold mb-4">{{ banner.title }}</h2>
+                                    <a href="{{ banner.link_url|default:'#' }}"
+                                       class="bg-primary hover:bg-transparent border border-transparent hover:border-white text-white font-semibold px-4 py-2 rounded-full inline-block">Shop
+                                        now</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="w-full sm:w-1/3 px-4 mb-8">
+                        <div class="category-banner relative overflow-hidden rounded-lg shadow-lg group">
+                            <img src="{% static 'images/cat-image1.jpg' %}" alt="Men" class="w-full h-auto">
+                            <div class="absolute inset-0 bg-gray-light bg-opacity-50"></div>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4">
+                                <h2 class="text-2xl md:text-3xl font-bold mb-4">Men</h2>
+                                <a href="{% url 'shop' %}?gender=men"
+                                   class="bg-primary hover:bg-transparent border border-transparent hover:border-white text-white font-semibold px-4 py-2 rounded-full inline-block">Shop
+                                    now</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full sm:w-1/3 px-4 mb-8">
+                        <div class="category-banner relative overflow-hidden rounded-lg shadow-lg group">
+                            <img src="{% static 'images/cat-image4.jpg' %}" alt="Women" class="w-full h-auto">
+                            <div class="absolute inset-0 bg-gray-light bg-opacity-50"></div>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4">
+                                <h2 class="text-2xl md:text-3xl font-bold mb-4">Women</h2>
+                                <a href="{% url 'shop' %}?gender=women"
+                                   class="bg-primary hover:bg-transparent border border-transparent hover:border-white text-white font-semibold px-4 py-2 rounded-full inline-block">Shop
+                                    now</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full sm:w-1/3 px-4 mb-8">
+                        <div class="category-banner relative overflow-hidden rounded-lg shadow-lg group">
+                            <img src="{% static 'images/cat-image5.jpg' %}" alt="Accessories"
+                                 class="w-full h-auto">
+                            <div class="absolute inset-0 bg-gray-light bg-opacity-50"></div>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4">
+                                <h2 class="text-2xl md:text-3xl font-bold mb-4">Accessories</h2>
+                                <a href="{% url 'shop' %}"
+                                   class="bg-primary hover:bg-transparent border border-transparent hover:border-white text-white font-semibold px-4 py-2 rounded-full inline-block">Shop
+                                    now</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FEATURED PRODUCTS ──────────────────────────────────────────────────── -->
+    {% if featured_products %}
+        <section id="popular-products" class="py-10">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold">Featured Products</h2>
+                    <a href="{% url 'shop' %}" class="text-primary hover:underline font-semibold">View all →</a>
+                </div>
+                <div class="flex flex-wrap -mx-4">
+                    {% for product in featured_products %}
+                        {% include 'store/partials/product_card.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- ── NEW ARRIVALS ───────────────────────────────────────────────────────── -->
+    {% if new_arrivals %}
+        <section id="latest-products" class="py-10 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold">New Arrivals</h2>
+                    <a href="{% url 'shop' %}?new=1" class="text-primary hover:underline font-semibold">View all →</a>
+                </div>
+                <div class="flex flex-wrap -mx-4">
+                    {% for product in new_arrivals %}
+                        {% include 'store/partials/product_card.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- ── ON SALE ────────────────────────────────────────────────────────────── -->
+    {% if on_sale_products %}
+        <section class="py-10">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold">On Sale <span class="text-primary">🔥</span></h2>
+                    <a href="{% url 'shop' %}?sale=1" class="text-primary hover:underline font-semibold">View all →</a>
+                </div>
+                <div class="flex flex-wrap -mx-4">
+                    {% for product in on_sale_products %}
+                        {% include 'store/partials/product_card.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- ── BRANDS ─────────────────────────────────────────────────────────────── -->
+    {% if brands %}
+        <section id="brands" class="bg-white py-16 px-4">
+            <div class="container mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold">Our Brands</h2>
+                </div>
+                <div class="swiper brands-swiper-slider">
+                    <div class="swiper-wrapper">
+                        {% for brand in brands %}
+                            <div class="swiper-slide">
+                                {% if brand.logo %}
+                                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }}"
+                                         class="h-16 object-contain mx-auto">
+                                {% else %}
+                                    <span class="text-xl font-bold text-gray-400">{{ brand.name }}</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
+                </div>
+            </div>
+        </section>
+    {% else %}
+        <section id="brands" class="bg-white py-16 px-4">
+            <div class="container mx-auto max-w-screen-xl px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold">Trusted Brands</h2>
+                </div>
+                <div class="swiper brands-swiper-slider">
+                    <div class="swiper-wrapper">
+                        {% for img in tech_stack %}
+                            <div class="swiper-slide"><img src="{% static 'images/brands/'|add:img|add:'.svg' %}"
+                                                           alt="{{ img }}" class="h-16 object-contain mx-auto"></div>
+                        {% endfor %}
+                    </div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- ── PROMO BANNER ───────────────────────────────────────────────────────── -->
+    <section id="banner" class="relative my-16">
+        <img src="{% static 'images/banner1.jpg' %}" alt="Promo Banner" class="w-full object-cover max-h-80">
+        <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+            <div class="text-center text-white px-4">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">Summer Sale Up to 50% Off</h2>
+                <a href="{% url 'shop' %}?sale=1"
+                   class="bg-primary hover:bg-transparent border border-primary text-white hover:text-white font-semibold px-6 py-3 rounded-full inline-block">Shop
+                    Sale</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── BLOG TEASER ────────────────────────────────────────────────────────── -->
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-12 text-center">Style Tips</h2>
+            <div class="flex flex-wrap -mx-4">
+                <div class="w-full sm:w-1/3 px-4 mb-8">
+                    <div class="bg-white rounded-lg overflow-hidden shadow-lg">
+                        <img src="{% static 'images/fashion-trends.jpg' %}" alt="Fashion Trends"
+                             class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Fashion Trends 2025</h3>
+                            <p class="text-gray-600 text-sm">Discover the hottest fashion trends this season and how to
+                                wear them.</p>
+                            <a href="#" class="text-primary font-semibold mt-4 inline-block hover:underline">Read more
+                                →</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full sm:w-1/3 px-4 mb-8">
+                    <div class="bg-white rounded-lg overflow-hidden shadow-lg">
+                        <img src="{% static 'images/stylisng-tips.jpg' %}" alt="Styling Tips"
+                             class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Styling Tips for Every Body</h3>
+                            <p class="text-gray-600 text-sm">Learn how to dress for your body type and feel confident
+                                every day.</p>
+                            <a href="#" class="text-primary font-semibold mt-4 inline-block hover:underline">Read more
+                                →</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full sm:w-1/3 px-4 mb-8">
+                    <div class="bg-white rounded-lg overflow-hidden shadow-lg">
+                        <img src="{% static 'images/customer-stories.jpg' %}" alt="Customer Stories"
+                             class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Customer Stories</h3>
+                            <p class="text-gray-600 text-sm">Real stories from real customers who love their TailStore
+                                looks.</p>
+                            <a href="#" class="text-primary font-semibold mt-4 inline-block hover:underline">Read more
+                                →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // Re-init swiper for brands
+        if (typeof Swiper !== 'undefined') {
+            new Swiper('.brands-swiper-slider', {
+                slidesPerView: 2,
+                loop: true,
+                autoplay: {delay: 2500},
+                navigation: {
+                    nextEl: '.brands-swiper-slider .swiper-button-next',
+                    prevEl: '.brands-swiper-slider .swiper-button-prev'
+                },
+                breakpoints: {768: {slidesPerView: 4}, 1024: {slidesPerView: 6}}
+            });
+        }
+    </script>
+{% endblock %}

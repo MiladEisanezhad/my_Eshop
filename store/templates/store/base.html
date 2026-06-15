@@ -1,0 +1,394 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{% static 'images/template-logo.png' %}" />
+    <title>{% block title %}MiladStore{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────────── -->
+<header class="bg-gray-dark sticky top-0 z-50">
+    <div class="container mx-auto flex justify-between items-center py-4">
+
+        <!-- Logo -->
+        <a href="{% url 'home' %}" class="flex items-center">
+            <img src="{% static 'images/logo_big.jpg' %}" alt="TailStore" class="h-14 w-auto mr-4">
+        </a>
+
+        <!-- Hamburger -->
+        <div class="flex lg:hidden">
+            <button id="hamburger" class="text-white focus:outline-none">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Nav (desktop) -->
+        <nav class="hidden lg:flex md:flex-grow justify-center">
+            <ul class="flex justify-center space-x-4 text-white">
+                <li><a href="{% url 'home' %}" class="hover:text-secondary font-semibold">Home</a></li>
+
+                {% if men_categories %}
+                <li class="relative" x-data="{ open: false }" @mouseenter="open=true" @mouseleave="open=false">
+                    <a href="{% url 'shop' %}?gender=men"
+                       class="hover:text-secondary font-semibold flex items-center py-1">
+                        Men <i :class="open ? 'fas fa-chevron-up ml-1 text-xs' : 'fas fa-chevron-down ml-1 text-xs'"></i>
+                    </a>
+                    <ul x-show="open"
+                        class="absolute left-0 top-full bg-white text-black space-y-1 pt-2 pb-2 rounded shadow-lg min-w-[160px] z-50"
+                        x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0">
+                        {% for cat in men_categories %}
+                        <li><a href="{{ cat.get_absolute_url }}" class="block px-4 py-2 hover:bg-primary hover:text-white">{{ cat.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endif %}
+
+                {% if women_categories %}
+                <li class="relative" x-data="{ open: false }" @mouseenter="open=true" @mouseleave="open=false">
+                    <a href="{% url 'shop' %}?gender=women"
+                       class="hover:text-secondary font-semibold flex items-center py-1">
+                        Women <i :class="open ? 'fas fa-chevron-up ml-1 text-xs' : 'fas fa-chevron-down ml-1 text-xs'"></i>
+                    </a>
+                    <ul x-show="open"
+                        class="absolute left-0 top-full bg-white text-black space-y-1 pt-2 pb-2 rounded shadow-lg min-w-[160px] z-50"
+                        x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0">
+                        {% for cat in women_categories %}
+                        <li><a href="{{ cat.get_absolute_url }}" class="block px-4 py-2 hover:bg-primary hover:text-white">{{ cat.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endif %}
+
+                <li><a href="{% url 'shop' %}" class="hover:text-secondary font-semibold">Shop</a></li>
+            </ul>
+        </nav>
+
+        <!-- Right buttons (desktop) -->
+        <div class="hidden lg:flex items-center space-x-4 relative">
+            {% if user.is_authenticated %}
+            <a href="{% url 'account' %}" class="text-white hover:text-secondary font-semibold">
+                <i class="fas fa-user mr-1"></i> {{ user.first_name|default:user.username }}
+            </a>
+            <a href="{% url 'logout' %}" class="bg-primary border border-primary hover:bg-transparent text-white hover:text-primary font-semibold px-4 py-2 rounded-full inline-block">Logout</a>
+            {% else %}
+            <a href="{% url 'register' %}" class="bg-primary border border-primary hover:bg-transparent text-white hover:text-primary font-semibold px-4 py-2 rounded-full inline-block">Register</a>
+            <a href="{% url 'login' %}" class="bg-primary border border-primary hover:bg-transparent text-white hover:text-primary font-semibold px-4 py-2 rounded-full inline-block">Login</a>
+            {% endif %}
+
+            <!-- Cart Icon -->
+            <div class="relative group cart-wrapper">
+                <a href="{% url 'cart' %}" class="relative">
+                    <img src="{% static 'images/cart-shopping.svg' %}" alt="Cart" class="h-6 w-6">
+                    <span id="cart-badge" class="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center {% if cart_count == 0 %}hidden{% endif %}">{{ cart_count }}</span>
+                </a>
+                <!-- Cart dropdown preview -->
+                <div class="absolute right-0 mt-1 w-80 bg-white shadow-lg p-4 rounded hidden group-hover:block z-50">
+                    <div class="space-y-4" id="cart-preview">
+                        {% if cart %}
+                        {% for item in cart %}
+                        <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+                            <div class="flex items-center">
+                                <img src="{{ item.image }}" alt="{{ item.name }}" class="h-12 w-12 object-cover rounded mr-2">
+                                <div>
+                                    <p class="font-semibold text-sm">{{ item.name }}</p>
+                                    <p class="text-xs text-gray-500">Qty: {{ item.quantity }}{% if item.variant_info %} · {{ item.variant_info }}{% endif %}</p>
+                                </div>
+                            </div>
+                            <p class="font-semibold">${{ item.total_price }}</p>
+                        </div>
+                        {% endfor %}
+                        <p class="font-bold text-right">Total: ${{ cart_total }}</p>
+                        {% else %}
+                        <p class="text-gray-500 text-sm text-center py-2">Your cart is empty.</p>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'cart' %}" class="block text-center mt-4 border border-primary bg-primary hover:bg-transparent text-white hover:text-primary py-2 rounded-full font-semibold">Go to Cart</a>
+                </div>
+            </div>
+
+            <!-- Search icon -->
+            <a id="search-icon" href="javascript:void(0);" class="text-white hover:text-secondary">
+                <img src="{% static 'images/search-icon.svg' %}" alt="Search" class="h-6 w-6">
+            </a>
+            <div id="search-field" class="hidden absolute top-full right-0 mt-2 w-72 bg-white shadow-lg p-2 rounded z-50">
+                <form action="{% url 'shop' %}" method="get" class="flex gap-2">
+                    <input type="text" name="q" placeholder="Search products..." autocomplete="off"
+                           class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-primary"
+                           id="search-input">
+                    <button type="submit" class="bg-primary text-white px-3 py-1 rounded text-sm">Go</button>
+                </form>
+                <div id="search-suggestions" class="mt-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div class="mobile-menu hidden lg:hidden bg-white text-black">
+        <ul class="flex flex-col">
+            <li><a href="{% url 'home' %}" class="block px-4 py-3 hover:text-primary font-semibold">Home</a></li>
+            <li><a href="{% url 'shop' %}?gender=men" class="block px-4 py-3 hover:text-primary font-semibold">Men</a></li>
+            <li><a href="{% url 'shop' %}?gender=women" class="block px-4 py-3 hover:text-primary font-semibold">Women</a></li>
+            <li><a href="{% url 'shop' %}" class="block px-4 py-3 hover:text-primary font-semibold">Shop</a></li>
+            <li><a href="{% url 'cart' %}" class="block px-4 py-3 hover:text-primary font-semibold">Cart ({{ cart_count }})</a></li>
+            {% if user.is_authenticated %}
+            <li><a href="{% url 'account' %}" class="block px-4 py-3 hover:text-primary font-semibold">Account</a></li>
+            <li><a href="{% url 'logout' %}" class="block px-4 py-3 hover:text-primary font-semibold">Logout</a></li>
+            {% else %}
+            <li><a href="{% url 'login' %}" class="block px-4 py-3 hover:text-primary font-semibold">Login</a></li>
+            <li><a href="{% url 'register' %}" class="block px-4 py-3 hover:text-primary font-semibold">Register</a></li>
+            {% endif %}
+        </ul>
+        <!-- Mobile search -->
+        <div class="px-4 pb-4">
+            <form action="{% url 'shop' %}" method="get" class="flex gap-2">
+                <input type="text" name="q" placeholder="Search products..."
+                       class="w-full p-2 border border-gray-300 rounded text-sm">
+                <button type="submit" class="bg-primary text-white px-3 py-2 rounded text-sm">Go</button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<!-- ── MESSAGES ───────────────────────────────────────────────────────────── -->
+{% if messages %}
+<div id="flash-messages" class="fixed top-20 right-4 z-50 space-y-2">
+    {% for msg in messages %}
+    <div class="flash-msg flex items-center gap-2 px-4 py-3 rounded shadow-lg text-white text-sm max-w-sm
+        {% if msg.tags == 'error' %}bg-red-500{% elif msg.tags == 'warning' %}bg-yellow-500{% else %}bg-green-500{% endif %}">
+        <i class="fas {% if msg.tags == 'error' %}fa-exclamation-circle{% elif msg.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-check-circle{% endif %}"></i>
+        {{ msg }}
+        <button onclick="this.parentElement.remove()" class="ml-auto text-white opacity-70 hover:opacity-100">✕</button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- ── MAIN CONTENT ───────────────────────────────────────────────────────── -->
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<!-- ── NEWSLETTER ─────────────────────────────────────────────────────────── -->
+{% block newsletter %}
+<section id="subscribe" class="py-6 lg:py-24 bg-white border-t border-gray-line">
+    <div class="container mx-auto">
+        <div class="flex flex-col items-center rounded-lg p-4 sm:p-0">
+            <div class="mb-8">
+                <h2 class="text-center text-xl font-bold sm:text-2xl lg:text-3xl">
+                    Join our newsletter and <span class="text-primary">get $50 discount</span> for your first order
+                </h2>
+            </div>
+            <div class="flex flex-col items-center w-full max-w-md">
+                <form action="{% url 'newsletter_subscribe' %}" method="post" class="flex w-full gap-2">
+                    {% csrf_token %}
+                    <input type="email" name="email" placeholder="Enter your email address" required
+                           class="w-full flex-1 rounded-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary">
+                    <button type="submit" class="bg-primary border border-primary hover:bg-transparent hover:border-primary text-white hover:text-primary font-semibold py-2 px-4 rounded-full whitespace-nowrap">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+<!-- ── FOOTER ─────────────────────────────────────────────────────────────── -->
+<footer class="border-t border-gray-line">
+    <div class="container mx-auto px-4 py-10">
+        <div class="flex flex-wrap -mx-4">
+            <div class="w-full sm:w-1/6 px-4 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Shop</h3>
+                <ul class="space-y-2">
+                    <li><a href="{% url 'shop' %}" class="hover:text-primary">All Products</a></li>
+                    <li><a href="{% url 'shop' %}?gender=women" class="hover:text-primary">Women</a></li>
+                    <li><a href="{% url 'shop' %}?gender=men" class="hover:text-primary">Men</a></li>
+                    <li><a href="{% url 'shop' %}?new=1" class="hover:text-primary">New Arrivals</a></li>
+                    <li><a href="{% url 'shop' %}?sale=1" class="hover:text-primary">Sale</a></li>
+                </ul>
+            </div>
+            <div class="w-full sm:w-1/6 px-4 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Pages</h3>
+                <ul class="space-y-2">
+                    <li><a href="{% url 'shop' %}" class="hover:text-primary">Shop</a></li>
+                    <li><a href="{% url 'cart' %}" class="hover:text-primary">Cart</a></li>
+                    <li><a href="{% url 'checkout' %}" class="hover:text-primary">Checkout</a></li>
+                </ul>
+            </div>
+            <div class="w-full sm:w-1/6 px-4 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Account</h3>
+                <ul class="space-y-2">
+                    {% if user.is_authenticated %}
+                    <li><a href="{% url 'account' %}" class="hover:text-primary">My Account</a></li>
+                    <li><a href="{% url 'wishlist' %}" class="hover:text-primary">Wishlist</a></li>
+                    <li><a href="{% url 'logout' %}" class="hover:text-primary">Logout</a></li>
+                    {% else %}
+                    <li><a href="{% url 'register' %}" class="hover:text-primary">Register</a></li>
+                    <li><a href="{% url 'login' %}" class="hover:text-primary">Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="w-full sm:w-1/6 px-4 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Follow Us</h3>
+                <ul class="space-y-2">
+                    <li class="flex items-center"><img src="{% static 'images/social_icons/facebook.svg' %}" class="w-4 h-4 mr-2"><a href="#" class="hover:text-primary">Facebook</a></li>
+                    <li class="flex items-center"><img src="{% static 'images/social_icons/twitter.svg' %}" class="w-4 h-4 mr-2"><a href="#" class="hover:text-primary">Twitter</a></li>
+                    <li class="flex items-center"><img src="{% static 'images/social_icons/instagram.svg' %}" class="w-4 h-4 mr-2"><a href="#" class="hover:text-primary">Instagram</a></li>
+                    <li class="flex items-center"><img src="{% static 'images/social_icons/pinterest.svg' %}" class="w-4 h-4 mr-2"><a href="#" class="hover:text-primary">Pinterest</a></li>
+                    <li class="flex items-center"><img src="{% static 'images/social_icons/youtube.svg' %}" class="w-4 h-4 mr-2"><a href="#" class="hover:text-primary">YouTube</a></li>
+                </ul>
+            </div>
+            <div class="w-full sm:w-2/6 px-4 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+                <img src="{% static 'images/template-logo.png' %}" alt="Logo" class="h-[60px] mb-4">
+                <p>123 Fashion Street, Paris, France</p>
+                <p class="text-xl font-bold my-4">Phone: (123) 456-7890</p>
+                <a href="mailto:info@tailstore.com" class="underline hover:text-primary">info@tailstore.com</a>
+            </div>
+        </div>
+    </div>
+    <div class="py-6 border-t border-gray-line">
+        <div class="container mx-auto px-4 flex flex-wrap justify-between items-center">
+            <div class="w-full lg:w-3/4 text-center lg:text-left mb-4 lg:mb-0">
+                <p class="mb-2 font-bold">&copy; {% now "Y" %} TailStore. All rights reserved.</p>
+                <ul class="flex justify-center lg:justify-start space-x-4 mb-4">
+                    <li><a href="#" class="hover:text-primary">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-primary">Terms of Service</a></li>
+                    <li><a href="#" class="hover:text-primary">FAQ</a></li>
+                </ul>
+                <p class="text-sm text-gray-500">Your premier destination for fashion & style.</p>
+            </div>
+            <div class="w-full lg:w-1/4 text-center lg:text-right">
+                <img src="{% static 'images/social_icons/paypal.svg' %}" alt="PayPal" class="inline-block h-8 mr-2">
+                <img src="{% static 'images/social_icons/stripe.svg' %}" alt="Stripe" class="inline-block h-8 mr-2">
+                <img src="{% static 'images/social_icons/visa.svg' %}" alt="Visa" class="inline-block h-8">
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- ── SCRIPTS ────────────────────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script src="{% static 'js/script.js' %}"></script>
+<script>
+// Auto-dismiss flash messages
+setTimeout(() => {
+    document.querySelectorAll('.flash-msg').forEach(el => el.remove());
+}, 5000);
+
+// CSRF helper for fetch
+function getCookie(name) {
+    let v = null;
+    if (document.cookie && document.cookie !== '') {
+        document.cookie.split(';').forEach(c => {
+            c = c.trim();
+            if (c.startsWith(name + '=')) v = decodeURIComponent(c.slice(name.length + 1));
+        });
+    }
+    return v;
+}
+
+// Update cart badge
+function updateCartBadge(count) {
+    const badge = document.getElementById('cart-badge');
+    if (badge) {
+        badge.textContent = count;
+        badge.classList.toggle('hidden', count === 0);
+    }
+}
+
+// Add to cart via JS (used on product cards)
+function addToCart(productId, quantity = 1, variantId = null) {
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify({ quantity, variant_id: variantId })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            updateCartBadge(data.cart_count);
+            showToast(data.message, 'success');
+        }
+    });
+}
+
+// Wishlist toggle
+function toggleWishlist(productId, btn) {
+    fetch(`/wishlist/toggle/${productId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (btn) {
+            btn.classList.toggle('text-primary', data.added);
+            btn.classList.toggle('text-gray-400', !data.added);
+        }
+    })
+    .catch(() => { window.location.href = '/login/'; });
+}
+
+// Toast notification
+function showToast(message, type = 'success') {
+    const container = document.getElementById('flash-messages') || (() => {
+        const d = document.createElement('div');
+        d.id = 'flash-messages';
+        d.className = 'fixed top-20 right-4 z-50 space-y-2';
+        document.body.appendChild(d);
+        return d;
+    })();
+    const toast = document.createElement('div');
+    toast.className = `flash-msg flex items-center gap-2 px-4 py-3 rounded shadow-lg text-white text-sm max-w-sm ${type === 'error' ? 'bg-red-500' : 'bg-green-500'}`;
+    toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message} <button onclick="this.parentElement.remove()" class="ml-auto opacity-70 hover:opacity-100">✕</button>`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+// Live search suggestions
+const searchInput = document.getElementById('search-input');
+if (searchInput) {
+    let timer;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(timer);
+        const q = this.value.trim();
+        if (q.length < 2) {
+            document.getElementById('search-suggestions').innerHTML = '';
+            return;
+        }
+        timer = setTimeout(() => {
+            fetch(`/search/suggestions/?q=${encodeURIComponent(q)}`)
+                .then(r => r.json())
+                .then(data => {
+                    const box = document.getElementById('search-suggestions');
+                    if (data.results.length === 0) { box.innerHTML = ''; return; }
+                    box.innerHTML = data.results.map(p =>
+                        `<a href="/product/${p.slug}/" class="block px-2 py-1 text-sm hover:bg-gray-100 rounded flex justify-between">
+                            <span>${p.name}</span><span class="text-primary font-semibold">$${p.price}</span>
+                        </a>`
+                    ).join('');
+                });
+        }, 300);
+    });
+}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
