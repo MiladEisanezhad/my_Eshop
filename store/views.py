@@ -47,14 +47,6 @@ class HomeView(TemplateView):
                             queryset=ProductImage.objects.order_by("ordering"),
                             to_attr="prefetched_images",
                         )
-                    )
-                    .annotate(
-                        avg_rating=Avg(
-                            "reviews__rating", filter=Q(reviews__is_approved=True)
-                        ),
-                        review_total=Count(
-                            "reviews", filter=Q(reviews__is_approved=True)
-                        ),
                     )[:8]
                 ),
                 "new_arrivals": (
@@ -66,14 +58,6 @@ class HomeView(TemplateView):
                             queryset=ProductImage.objects.order_by("ordering"),
                             to_attr="prefetched_images",
                         )
-                    )
-                    .annotate(
-                        avg_rating=Avg(
-                            "reviews__rating", filter=Q(reviews__is_approved=True)
-                        ),
-                        review_total=Count(
-                            "reviews", filter=Q(reviews__is_approved=True)
-                        ),
                     )[:8]
                 ),
                 "on_sale_products": (
@@ -85,14 +69,6 @@ class HomeView(TemplateView):
                             queryset=ProductImage.objects.order_by("ordering"),
                             to_attr="prefetched_images",
                         )
-                    )
-                    .annotate(
-                        avg_rating=Avg(
-                            "reviews__rating", filter=Q(reviews__is_approved=True)
-                        ),
-                        review_total=Count(
-                            "reviews", filter=Q(reviews__is_approved=True)
-                        ),
                     )[:8]
                 ),
                 "banners": Banner.objects.filter(
@@ -143,10 +119,6 @@ class ShopView(ListView):
                     queryset=ProductImage.objects.order_by("ordering"),
                     to_attr="prefetched_images",
                 )
-            )
-            .annotate(
-                avg_rating=Avg("reviews__rating", filter=Q(reviews__is_approved=True)),
-                review_total=Count("reviews", filter=Q(reviews__is_approved=True)),
             )
         )
         p = self.request.GET

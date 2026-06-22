@@ -28,12 +28,12 @@
         <p class="my-1 text-sm text-gray-500">{{ product.category.name }}</p>
 
         <!-- Rating -->
-        {% if product.review_total > 0 %}
+        {% if product.rating_count > 0 %}
         <div class="flex items-center my-1">
             {% for i in "12345" %}
-            <i class="fas fa-star text-xs {% if forloop.counter <= product.avg_rating %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
+            <i class="fas fa-star text-xs {% if forloop.counter <= product.rating_avg %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
             {% endfor %}
-            <span class="text-xs text-gray-500 ml-1">({{ product.review_total }})</span>
+            <span class="text-xs text-gray-500 ml-1">({{ product.rating_count }})</span>
         </div>
         {% endif %}
 

@@ -41,6 +41,7 @@
                         {% if images %}
                         <div class="grid grid-cols-5 gap-2">
                             {% for img in images %}
+                            {% if img.image %}
                             <div>
                                 <img onclick="changeImage(this)"
                                      data-full="{{ img.image.url }}"
@@ -48,6 +49,7 @@
                                      class="object-cover object-center h-20 w-full rounded-lg cursor-pointer border-2 border-transparent hover:border-primary transition-all"
                                      alt="{{ img.alt_text|default:product.name }}">
                             </div>
+                            {% endif %}
                             {% endfor %}
                         </div>
                         {% endif %}
@@ -63,10 +65,10 @@
                         <div class="flex items-center mb-6">
                             <div class="flex">
                                 {% for i in "12345" %}
-                                <i class="fas fa-star {% if forloop.counter <= product.average_rating %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
+                                <i class="fas fa-star {% if forloop.counter <= product.rating_avg %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
                                 {% endfor %}
                             </div>
-                            <span class="ml-2 text-gray-500 text-sm">({{ product.review_count }} review{{ product.review_count|pluralize }})</span>
+                            <span class="ml-2 text-gray-500 text-sm">({{ product.rating_count }} review{{ product.rating_count|pluralize }})</span>
                             <a href="#reviews" onclick="showTab('reviews')" class="ml-4 text-primary font-semibold text-sm hover:underline">Write a review</a>
 
                         </div>
