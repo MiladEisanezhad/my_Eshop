@@ -216,10 +216,17 @@ class Product(models.Model):
     def get_main_image_url(self):
         if self.main_image:
             return self.main_image.url
-        images = self.images.all()
-        if images.exists():
-            return images.first().image.url
-        return '/static/assets/images/products/1.jpg'
+        if hasattr(self, "prefetched_images"):
+            image_list = self.prefetched_images
+            if image_list and image_list[0].image:
+                return image_list[0].image.url
+            return '/static/images/products/1.jpg'
+        else:
+            images = self.images.all()
+            first_image = images.first()
+            if first_image and first_image.image:
+                return first_image.image.url
+            return '/static/images/products/1.jpg'
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -547,7 +554,7 @@ class Banner(models.Model):
 
     title = models.CharField(max_length=200)
     subtitle = models.CharField(max_length=300, blank=True)
-    image = models.ImageField(upload_to='banners/')
+    image = models.ImageField(upload_to='banners/', blank=True)
     link_url = models.CharField(max_length=300, blank=True)
     link_text = models.CharField(max_length=100, blank=True)
     position = models.CharField(max_length=20, choices=POSITION_CHOICES, default='main_slider')

@@ -12,7 +12,12 @@
                 {% if banners %}
                     {% for banner in banners %}
                         <div class="swiper-slide">
+                            {% if banner.image %}
                             <img src="{{ banner.image.url }}" alt="{{ banner.title }}">
+                            {% else %}
+                            <img src="/static/images/main-slider/2.png" alt="default banner">
+                            {% endif %}
+                            
                             <div class="swiper-slide-content">
                                 <h2 class="text-3xl md:text-7xl font-bold text-white mb-2 md:mb-4">{{ banner.title }}</h2>
                                 {% if banner.subtitle %}

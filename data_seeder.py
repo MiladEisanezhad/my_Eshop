@@ -23,13 +23,14 @@ from store.models import (
 fake = Faker()
 
 
-def create_dummy_image(name="dummy.jpg"):
-    """تولید یک تصویر ساده برای فیلدهای عکس"""
-    return ContentFile(b"dummy image content", name=name)
+# def create_dummy_image(name="dummy.jpg"):
+#     """تولید یک تصویر ساده برای فیلدهای عکس"""
+#     return ContentFile(b"dummy image content", name=name)
 
 
 def run_seeder():
     print("Clearing old data...")
+    Banner.objects.all().delete()
     # دقت کنید که این دستورات داده‌های قبلی دیتابیس را پاک می‌کنند
     Order.objects.all().delete()
     Review.objects.all().delete()
@@ -108,7 +109,7 @@ def run_seeder():
         # Product Image
         ProductImage.objects.create(
             product=product,
-            image=create_dummy_image(),
+            # image=create_dummy_image(),
             is_primary=True
         )
 
@@ -197,7 +198,7 @@ def run_seeder():
 
     Banner.objects.create(
         title="Welcome to our Shop",
-        image=create_dummy_image(name="banner.jpg"),
+        # image=create_dummy_image(name="banner.jpg"),
         position='main_slider'
     )
 
