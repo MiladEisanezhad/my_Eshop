@@ -7,12 +7,12 @@
 <div class="container mx-auto px-4 py-10">
     <h1 class="text-3xl font-bold mb-8">
         My Wishlist
-        <span class="text-gray-400 text-lg font-normal">({{ wishlist.products.count }} item{{ wishlist.products.count|pluralize }})</span>
+        <span class="text-gray-400 text-lg font-normal">({{ wishlist_products.count }} item{{ wishlist_products.count|pluralize }})</span>
     </h1>
 
-    {% if wishlist.products.exists %}
+    {% if wishlist_products %}
     <div class="flex flex-wrap -mx-4">
-        {% for product in wishlist.products.all %}
+        {% for product in wishlist_products %}
         <div class="w-full sm:w-1/2 lg:w-1/4 px-4 mb-8">
             <div class="bg-white p-3 rounded-xl shadow-lg group relative">
                 <!-- Remove from wishlist -->

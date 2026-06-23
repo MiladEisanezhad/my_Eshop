@@ -249,3 +249,18 @@ img.cursor-pointer:hover {
     color: #e11d48;
     border-bottom-color: #e11d48;
 }
+
+.star-filled {
+    color: #FBBF24; /* This is the color for text-yellow-400 */
+}
+
+.star-empty {
+    color: #D1D5DB; /* This is the color for text-gray-300 */
+}
+.rating-star.is-active {
+    color: #FBBF24; /* This is the color for Tailwind's yellow-400 */
+}
+
+.rating-star.is-inactive {
+    color: #D1D5DB; /* This is the color for Tailwind's gray-300 */
+}

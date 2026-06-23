@@ -65,12 +65,13 @@
                         <div class="flex items-center mb-6">
                             <div class="flex">
                                 {% for i in "12345" %}
-                                <i class="fas fa-star {% if forloop.counter <= product.rating_avg %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
+                                <i
+                                class="fas fa-star text-xs {% if forloop.counter <= product.rating_avg %}star-filled{% else %}star-empty{% endif %}"
+                                ></i>
                                 {% endfor %}
                             </div>
-                            <span class="ml-2 text-gray-500 text-sm">({{ product.rating_count }} review{{ product.rating_count|pluralize }})</span>
+                            <span class="ml-2 text-gray-500 text-sm">{{product.rating_avg}} ({{ product.rating_count }} review{{ product.rating_count|pluralize }})</span>
                             <a href="#reviews" onclick="showTab('reviews')" class="ml-4 text-primary font-semibold text-sm hover:underline">Write a review</a>
-
                         </div>
 
                         <!-- Meta -->
@@ -289,7 +290,7 @@
                             </div>
                             <div class="flex mb-2">
                                 {% for i in "12345" %}
-                                <i class="fas fa-star text-sm {% if forloop.counter <= review.rating %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
+                                <i class="fas fa-star text-sm {% if forloop.counter <= review.rating %}star-filled{% else %}star-empty{% endif %}"></i>
                                 {% endfor %}
                             </div>
                             {% if review.title %}<h4 class="font-semibold mb-1">{{ review.title }}</h4>{% endif %}
@@ -307,17 +308,18 @@
                         <h3 class="text-xl font-semibold mb-4">Write a Review</h3>
                         <form method="post">
                             {% csrf_token %}
-                            <div class="mb-4">
-                                <label class="block font-semibold mb-2">Rating <span class="text-primary">*</span></label>
-                                <div class="flex gap-2">
-                                    {% for i in "12345" %}
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="rating" value="{{ forloop.counter }}" class="hidden peer" {% if user_review.rating == forloop.counter %}checked{% endif %} required>
-                                        <i class="fas fa-star text-2xl text-gray-300 peer-checked:text-yellow-400 hover:text-yellow-400 transition-colors"></i>
-                                    </label>
-                                    {% endfor %}
-                                </div>
+                        <div class="mb-4">
+                            <label class="block font-semibold mb-2">Rating <span class="text-primary">*</span></label>
+                            <div id="star-rating" class="flex gap-2">
+                                {% for i in "12345" %}
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="rating" value="{{ forloop.counter }}" class="sr-only rating-input" {% if user_review.rating == forloop.counter %}checked{% endif %} required>
+                                    <!-- Note the changes here: Removed all text-* classes and added is-inactive -->
+                                    <i class="fas fa-star text-2xl transition-colors rating-star is-inactive"></i>
+                                </label>
+                                {% endfor %}
                             </div>
+                        </div>
                             <div class="mb-4">
                                 <label class="block font-semibold mb-2">Title</label>
                                 <input type="text" name="title" value="{{ user_review.title|default:'' }}"

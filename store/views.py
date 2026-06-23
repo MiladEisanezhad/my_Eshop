@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.db.models import Max, Min, Q, Avg, Count, Prefetch
+from django.db.models import Max, Min, Q, Prefetch, F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
@@ -24,6 +24,7 @@ from .models import (
     UserProfile,
     Wishlist,
     ProductImage,
+    ProductVariant,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -180,7 +181,7 @@ class ShopView(ListView):
                     min_p=Min("price"), max_p=Max("price")
                 ),
                 "search_q": self.request.GET.get("q", ""),
-                "total_products": self.get_queryset().count(),
+                "total_products": len(self.object_list),
                 "gender_choices": self.GENDER_CHOICES,
             }
         )
@@ -196,24 +197,40 @@ class ProductDetailView(View):
     template_name = "store/single_product.html"
 
     def _get_product(self, slug):
-        return get_object_or_404(Product, slug=slug, status="published")
+        return get_object_or_404(
+            Product.objects.prefetch_related(
+                "images",
+                Prefetch(
+                    "variants",
+                    queryset=ProductVariant.objects.filter(is_active=True),
+                    to_attr="active_variants",
+                ),
+            ),
+            slug=slug,
+            status="published",
+        )
 
     def _build_context(self, product):
-        variants = product.variants.filter(is_active=True)
+        variants = product.active_variants  # plain Python list
+
         return {
             "product": product,
             "images": product.images.all(),
             "variants": variants,
-            "sizes": list(
-                variants.values_list("size", flat=True).distinct().exclude(size="")
-            ),
-            "colors": list(
-                variants.values_list("color", "color_hex").distinct().exclude(color="")
-            ),
+            "sizes": list({v.size for v in variants if v.size}),
+            "colors": list({(v.color, v.color_hex) for v in variants if v.color}),
             "reviews": product.reviews.filter(is_approved=True).select_related("user"),
             "related_products": Product.objects.filter(
                 category=product.category, status="published"
-            ).exclude(id=product.id)[:4],
+            )
+            .exclude(id=product.id)
+            .prefetch_related(
+                Prefetch(
+                    "images",
+                    queryset=ProductImage.objects.order_by("ordering"),
+                    to_attr="prefetched_images",
+                )
+            )[:4],
             "variants_json": json.dumps(
                 [
                     {
@@ -230,9 +247,7 @@ class ProductDetailView(View):
 
     def get(self, request, slug):
         product = self._get_product(slug)
-        product.view_count += 1
-        product.save(update_fields=["view_count"])
-
+        Product.objects.filter(pk=product.pk).update(view_count=F("view_count") + 1)
         ctx = self._build_context(product)
         ctx["user_review"] = (
             Review.objects.filter(product=product, user=request.user).first()
@@ -477,13 +492,20 @@ class CheckoutView(View):
                 image_url=item.get("image", ""),
             )
             if product.track_stock:
-                product.total_stock = max(0, product.total_stock - item["quantity"])
-                product.sales_count += item["quantity"]
-                product.save(update_fields=["total_stock", "sales_count"])
+                Product.objects.filter(
+                    pk=product.pk,
+                    total_stock__gte=item[
+                        "quantity"
+                    ],  # only update if enough stock exists
+                ).update(
+                    total_stock=F("total_stock") - item["quantity"],
+                    sales_count=F("sales_count") + item["quantity"],
+                )
 
         if coupon_obj:
-            coupon_obj.usage_count += 1
-            coupon_obj.save(update_fields=["usage_count"])
+            Coupon.objects.filter(pk=coupon_obj.pk).update(
+                usage_count=F("usage_count") + 1
+            )
             del request.session["coupon_code"]
 
         cart.clear()
@@ -650,7 +672,9 @@ class WishlistView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         wishlist, _ = Wishlist.objects.get_or_create(user=self.request.user)
-        ctx["wishlist"] = wishlist
+        ctx["wishlist_products"] = wishlist.products.select_related('category').prefetch_related(
+            Prefetch('images', queryset=ProductImage.objects.order_by('ordering'), to_attr="prefetched_images")
+        )
         return ctx
 
 
