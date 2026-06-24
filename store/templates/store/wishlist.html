@@ -7,7 +7,7 @@
 <div class="container mx-auto px-4 py-10">
     <h1 class="text-3xl font-bold mb-8">
         My Wishlist
-        <span class="text-gray-400 text-lg font-normal">({{ wishlist_products.count }} item{{ wishlist_products.count|pluralize }})</span>
+        <span class="text-gray-400 text-lg font-normal">({{ wishlist_count }} item {{wishlist_count|pluralize }})</span>
     </h1>
 
     {% if wishlist_products %}

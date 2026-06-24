@@ -675,6 +675,7 @@ class WishlistView(LoginRequiredMixin, TemplateView):
         ctx["wishlist_products"] = wishlist.products.select_related('category').prefetch_related(
             Prefetch('images', queryset=ProductImage.objects.order_by('ordering'), to_attr="prefetched_images")
         )
+        ctx["wishlist_count"] = ctx["wishlist_products"].count()
         return ctx
 
 
@@ -684,7 +685,7 @@ class WishlistToggleView(LoginRequiredMixin, View):
     def post(self, request, product_id):
         product = get_object_or_404(Product, id=product_id, status="published")
         wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
-        if product in wishlist.products.all():
+        if wishlist.products.filter(pk=product.pk).exists():
             wishlist.products.remove(product)
             added = False
         else:
