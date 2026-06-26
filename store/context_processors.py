@@ -1,4 +1,4 @@
-from .models import Category
+from .models import Category, UserProfile
 from .cart import Cart
 
 
@@ -20,3 +20,14 @@ def categories_context(request):
         'men_categories': men_cats,
         'women_categories': women_cats,
     }
+
+
+def profile_context(request):
+    if request.user.is_authenticated:
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
+            profile = None
+    else:
+        profile = None
+    return {'profile': profile}

@@ -32,4 +32,5 @@ dist/
 *.egg-info/
 .eggs/
 
-# Migrations (optional
+# Migrations (optional)
+.editorconfig

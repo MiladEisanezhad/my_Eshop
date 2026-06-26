@@ -4,57 +4,117 @@
 {% block title %}Login — MiladStore{% endblock %}
 
 {% block content %}
-<section class="bg-white py-20 min-h-[60vh] flex items-center">
-    <div class="container mx-auto px-4">
-        <div class="max-w-md mx-auto bg-white rounded-xl shadow-md p-8 md:p-12">
-            <div class="text-center mb-8">
-                <img src="{% static 'images/template-logo.png' %}" alt="TailStore" class="h-14 mx-auto mb-4">
-                <h1 class="text-2xl font-bold">Welcome Back</h1>
-                <p class="text-gray-500 text-sm mt-1">Sign in to your account</p>
-            </div>
+<section class="min-h-screen flex items-center justify-center py-12 px-4"
+  style="background: linear-gradient(135deg, #0f0f0f 0%, #1a0a2e 40%, #0d1117 70%, #0f0f0f 100%);">
 
-            <form action="{% url 'login' %}" method="post">
-                {% csrf_token %}
-                {% if request.GET.next %}<input type="hidden" name="next" value="{{ request.GET.next }}">{% endif %}
+  <!-- Orbs -->
+  <div class="fixed top-0 left-0 w-96 h-96 rounded-full opacity-10 pointer-events-none"
+       style="background:#e53e3e; filter:blur(80px); transform:translate(-30%, -30%);"></div>
+  <div class="fixed bottom-0 right-0 w-64 h-64 rounded-full opacity-10 pointer-events-none"
+       style="background:#7c3aed; filter:blur(80px); transform:translate(30%, 30%);"></div>
 
-                <div class="mb-4">
-                    <label for="username" class="block text-sm font-semibold mb-1">Username or Email</label>
-                    <input type="text" id="username" name="username" autofocus required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-full focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary">
-                </div>
-                <div class="mb-5">
-                    <label for="password" class="block text-sm font-semibold mb-1">Password</label>
-                    <div class="relative">
-                        <input type="password" id="password" name="password" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-full focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary pr-10">
-                        <button type="button" onclick="togglePw()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-eye text-sm" id="pw-eye"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <button type="submit" class="w-full bg-primary border border-primary hover:bg-transparent text-white hover:text-primary font-bold py-2 px-4 rounded-full transition-all">
-                    Sign In
-                </button>
-            </form>
-
-            <div class="mt-6 text-center space-y-2">
-                <p class="text-gray-500 text-sm">
-                    Don't have an account? <a href="{% url 'register' %}" class="text-primary font-semibold hover:underline">Register</a>
-                </p>
-            </div>
-        </div>
+  <div class="relative z-10" style="width: 480px; max-width: 100%;">
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <img src="{% static 'images/template-logo.png' %}" alt="TailStore" class="h-10 mx-auto mb-4 brightness-0 invert">
+      <h1 class="text-white text-2xl font-bold">Welcome back</h1>
+      <p class="text-gray-400 text-sm mt-1">Sign in to continue shopping</p>
     </div>
+
+    <!-- Card -->
+    <div class="rounded-3xl p-8 shadow-2xl"
+         style="background: rgba(255,255,255,0.04); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.08);  padding: 2rem; border-radius: 0.5rem;">
+
+      <!-- Django messages -->
+      {% for message in messages %}
+      <div class="mb-5 px-4 py-3 rounded-xl text-sm"
+           style="background: rgba(229,62,62,0.1); border: 1px solid rgba(229,62,62,0.2); color: #fc8181;">
+        {{ message }}
+      </div>
+      {% endfor %}
+
+      <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        {% if request.GET.next %}
+          <input type="hidden" name="next" value="{{ request.GET.next }}">
+        {% endif %}
+
+        <!-- Username -->
+        <div class="mb-4">
+          <label for="username" class="block text-xs font-semibold mb-2 tracking-wide uppercase"
+                 style="color: #d1d5db;">Username or Email</label>
+          <input type="text" id="username" name="username" autofocus required
+                 placeholder="your@email.com" autocomplete="username"
+                 class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-600 transition-all"
+                 style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);"
+                 onfocus="this.style.borderColor='rgba(229,62,62,0.6)'; this.style.boxShadow='0 0 0 3px rgba(229,62,62,0.15)'"
+                 onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none'">
+        </div>
+
+        <!-- Password -->
+        <div class="mb-6">
+          <label for="password" class="block text-xs font-semibold mb-2 tracking-wide uppercase"
+                 style="color: #d1d5db;">Password</label>
+          <div class="relative">
+            <input type="password" id="password" name="password" required
+                   placeholder="Min. 8 characters" autocomplete="current-password"
+                   class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-600 pr-11 transition-all"
+                   style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);"
+                   onfocus="this.style.borderColor='rgba(229,62,62,0.6)'; this.style.boxShadow='0 0 0 3px rgba(229,62,62,0.15)'"
+                   onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none'">
+            <button type="button" onclick="togglePw()"
+                    class="absolute inset-y-0 right-3 flex items-center transition-colors"
+                    style="color: #6b7280;">
+              <svg id="pw-eye" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit"
+                class="w-full py-3 rounded-xl text-white font-semibold text-sm transition-all"
+                style="background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);"
+                onmouseover="this.style.opacity='0.9'"
+                onmouseout="this.style.opacity='1'">
+          Sign In
+        </button>
+      </form>
+
+      <p class="text-center text-xs mt-6" style="color: #6b7280;">
+        Don't have an account?
+        <a href="{% url 'register' %}" class="font-semibold transition-colors"
+           style="color: #fc8181;">Create one</a>
+      </p>
+    </div>
+  </div>
 </section>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 function togglePw() {
-    const f = document.getElementById('password');
-    const i = document.getElementById('pw-eye');
-    f.type = f.type === 'password' ? 'text' : 'password';
-    i.classList.toggle('fa-eye'); i.classList.toggle('fa-eye-slash');
+  const f = document.getElementById('password');
+  const eye = document.getElementById('pw-eye');
+  const isPassword = f.type === 'password';
+  f.type = isPassword ? 'text' : 'password';
+  eye.innerHTML = isPassword
+    ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+         d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7
+            a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243
+            M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29
+            m7.532 7.532l3.29 3.29M3 3l3.59 3.59
+            m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7
+            a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>`
+    : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7
+            -1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`;
 }
 </script>
 {% endblock %}

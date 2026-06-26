@@ -586,7 +586,7 @@ class UserProfile(models.Model):
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     date_of_birth = models.DateField(null=True, blank=True)
     newsletter_subscribed = models.BooleanField(default=False)
-
+    
     # Default shipping address
     default_address_line1 = models.CharField(max_length=255, blank=True)
     default_address_line2 = models.CharField(max_length=255, blank=True)

@@ -654,6 +654,10 @@ class AccountView(LoginRequiredMixin, View):
         profile.default_city = p.get("city", "")
         profile.default_zip = p.get("zip", "")
         profile.default_country = p.get("country", "")
+        # Handle avatar upload
+        if request.FILES.get("avatar"):
+            profile.avatar = request.FILES["avatar"]
+
         profile.save()
 
         messages.success(request, "Profile updated.")

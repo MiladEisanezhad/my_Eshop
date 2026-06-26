@@ -34,7 +34,10 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+CSRF_TRUSTED_ORIGINS = [
+    origin for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") 
+    if origin
+]
 
 ROOT_URLCONF = "tailstore.urls"
 
@@ -51,6 +54,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "store.context_processors.cart_context",
                 "store.context_processors.categories_context",
+                "store.context_processors.profile_context",
             ],
         },
     },
