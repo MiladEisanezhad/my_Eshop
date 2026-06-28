@@ -114,7 +114,7 @@ else:
     AWS_DEFAULT_ACL = "public-read"
     AWS_S3_SIGNATURE_VERSION = "s3v4"
 
-    MEDIA_URL = os.environ.get("SUPABASE_PROJECT_URL") + "/storage/v1/object/public/media/"
+    MEDIA_URL = f"{os.environ.get('SUPABASE_PROJECT_URL', '')}/storage/v1/object/public/media/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
