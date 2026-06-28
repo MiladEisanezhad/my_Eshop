@@ -7,21 +7,18 @@ from django.http import HttpResponse
 def test_s3(request):
     import boto3
     from botocore.client import Config
+    from botocore import exceptions
     import os
     
     try:
-        s3 = boto3.client(
-            's3',
-            endpoint_url=os.environ.get('SUPABASE_ENDPOINT_URL'),
-            aws_access_key_id=os.environ.get('SUPABASE_ACCESS_KEY_ID'),
-            aws_secret_access_key=os.environ.get('SUPABASE_SECRET_ACCESS_KEY'),
-            region_name=os.environ.get('SUPABASE_REGION'),
-            config=Config(signature_version='s3v4')
-        )
-        s3.put_object(Bucket='media', Key='railway-test.txt', Body=b'hello from railway')
-        return HttpResponse('SUCCESS')
+        from django.core.files.storage import default_storage
+        from django.core.files.base import ContentFile
+        path = default_storage.save('test-django-storage.txt', ContentFile(b'hello from django storage'))
+        url = default_storage.url(path)
+        return HttpResponse(f'SUCCESS: {url}')
     except Exception as e:
-        return HttpResponse(f'FAILED: {e}')
+        import traceback
+        return HttpResponse(f'FAILED: {type(e).__name__}: {e}\n\n{traceback.format_exc()}', content_type='text/plain')
     
 urlpatterns = [
     path('admin/', admin.site.urls),
