@@ -126,6 +126,10 @@ print(f"ENDPOINT: {os.environ.get('SUPABASE_ENDPOINT_URL')}", file=sys.stderr)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+FILE_UPLOAD_HANDLERS = [
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+]
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
