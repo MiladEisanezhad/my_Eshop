@@ -115,6 +115,7 @@ else:
     AWS_DEFAULT_ACL = None
     AWS_S3_OBJECT_PARAMETERS = {"ContentType": "auto"}
     AWS_S3_SIGNATURE_VERSION = "s3v4"
+    AWS_S3_ADDRESSING_STYLE = "path"
 
     MEDIA_URL = f"{os.environ.get('SUPABASE_PROJECT_URL', '')}/storage/v1/object/public/media/"
 
