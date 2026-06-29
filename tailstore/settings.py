@@ -97,7 +97,14 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 if DEBUG:
     MEDIA_URL = "/media/"
@@ -114,7 +121,6 @@ else:
     AWS_S3_FILE_OVERWRITE = False
     AWS_DEFAULT_ACL = "public-read"        # ← was None, must be public-read
     AWS_QUERYSTRING_AUTH = False           # ← ADD THIS — stops signed URLs
-    AWS_S3_OBJECT_PARAMETERS = {"ContentType": "auto"}
     AWS_S3_SIGNATURE_VERSION = "s3v4"
     AWS_S3_ADDRESSING_STYLE = "path"
     MEDIA_ROOT = BASE_DIR / "media"
