@@ -118,15 +118,15 @@ else:
     AWS_S3_ENDPOINT_URL = os.environ.get("SUPABASE_ENDPOINT_URL")
     AWS_S3_REGION_NAME = os.environ.get("SUPABASE_REGION")
 
+    AWS_S3_CUSTOM_DOMAIN = f"hdeyyjgbrelmfojojzar.supabase.co/storage/v1/object/public/{os.environ.get('SUPABASE_BUCKET_NAME')}"
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
+
     AWS_S3_FILE_OVERWRITE = False
-    AWS_DEFAULT_ACL = "public-read"        # ← was None, must be public-read
-    AWS_QUERYSTRING_AUTH = False           # ← ADD THIS — stops signed URLs
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = False
     AWS_S3_SIGNATURE_VERSION = "s3v4"
     AWS_S3_ADDRESSING_STYLE = "path"
     MEDIA_ROOT = BASE_DIR / "media"
-
-    # This tells Django what URL to use when rendering <img src="...">
-    MEDIA_URL = f"{os.environ.get('SUPABASE_PROJECT_URL', '')}/storage/v1/object/public/{os.environ.get('SUPABASE_BUCKET_NAME', 'media')}/"
 
 # Fix the NameError in your print statement
 _storage = DEFAULT_FILE_STORAGE if not DEBUG else "local"
