@@ -144,32 +144,24 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'console': {'class': 'logging.StreamHandler'},
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
     },
     'root': {
         'handlers': ['console'],
         'level': 'DEBUG',
     },
     'loggers': {
-        'storages': {
+        'django': {
             'handlers': ['console'],
             'level': 'DEBUG',
-            'propagate': True,
-        },
-        'boto3': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'botocore': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
+            'propagate': False,
         },
         'django.request': {
             'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
+            'level': 'ERROR',
+            'propagate': False,
         },
     },
 }
