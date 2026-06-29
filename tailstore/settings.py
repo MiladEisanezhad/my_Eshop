@@ -37,7 +37,7 @@ MIDDLEWARE = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    origin for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") 
+    origin for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
     if origin
 ]
 
@@ -112,16 +112,20 @@ else:
     AWS_S3_REGION_NAME = os.environ.get("SUPABASE_REGION")
 
     AWS_S3_FILE_OVERWRITE = False
-    AWS_DEFAULT_ACL = None
+    AWS_DEFAULT_ACL = "public-read"        # ← was None, must be public-read
+    AWS_QUERYSTRING_AUTH = False           # ← ADD THIS — stops signed URLs
     AWS_S3_OBJECT_PARAMETERS = {"ContentType": "auto"}
     AWS_S3_SIGNATURE_VERSION = "s3v4"
     AWS_S3_ADDRESSING_STYLE = "path"
     MEDIA_ROOT = BASE_DIR / "media"
 
-    MEDIA_URL = f"{os.environ.get('SUPABASE_PROJECT_URL', '')}/storage/v1/object/public/media/"
+    # This tells Django what URL to use when rendering <img src="...">
+    MEDIA_URL = f"{os.environ.get('SUPABASE_PROJECT_URL', '')}/storage/v1/object/public/{os.environ.get('SUPABASE_BUCKET_NAME', 'media')}/"
 
+# Fix the NameError in your print statement
+_storage = DEFAULT_FILE_STORAGE if not DEBUG else "local"
 print(f"DEBUG VALUE IS: {DEBUG}", file=sys.stderr)
-print(f"STORAGE BACKEND: {DEFAULT_FILE_STORAGE if not DEBUG else 'local'}", file=sys.stderr)
+print(f"STORAGE BACKEND: {_storage}", file=sys.stderr)
 print(f"ENDPOINT: {os.environ.get('SUPABASE_ENDPOINT_URL')}", file=sys.stderr)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
