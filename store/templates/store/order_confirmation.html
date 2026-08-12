@@ -1,0 +1,107 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmed — MiladStore{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-16">
+    <div class="max-w-3xl mx-auto">
+
+        <!-- Success Banner -->
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
+                <i class="fas fa-check-circle text-5xl text-green-500"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Order Confirmed!</h1>
+            <p class="text-gray-500 text-lg">Thank you for your purchase. We've received your order.</p>
+        </div>
+
+        <!-- Order Info Box -->
+        <div class="bg-gray-50 rounded-xl border border-gray-200 p-6 mb-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div>
+                    <p class="text-xs text-gray-400 uppercase font-semibold mb-1">Order Number</p>
+                    <p class="font-bold text-primary">{{ order.order_number }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 uppercase font-semibold mb-1">Date</p>
+                    <p class="font-semibold">{{ order.created_at|date:"M j, Y" }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 uppercase font-semibold mb-1">Total</p>
+                    <p class="font-bold text-primary">${{ order.total }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 uppercase font-semibold mb-1">Payment</p>
+                    <p class="font-semibold capitalize">{{ order.get_payment_method_display }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+            <h2 class="text-lg font-bold mb-4">Items Ordered</h2>
+            <div class="space-y-4">
+                {% for item in order.items.all %}
+                <div class="flex items-center gap-4 py-3 {% if not forloop.last %}border-b border-gray-100{% endif %}">
+                    {% if item.image_url %}
+                    <img src="{{ item.image_url }}" alt="{{ item.product_name }}" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
+                    {% else %}
+                    <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-tshirt text-gray-400"></i>
+                    </div>
+                    {% endif %}
+                    <div class="flex-1">
+                        <p class="font-semibold">{{ item.product_name }}</p>
+                        {% if item.variant_info %}<p class="text-sm text-gray-500">{{ item.variant_info }}</p>{% endif %}
+                        <p class="text-sm text-gray-400">Qty: {{ item.quantity }} × ${{ item.unit_price }}</p>
+                    </div>
+                    <p class="font-bold">${{ item.total_price }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Totals -->
+            <div class="border-t border-gray-100 mt-4 pt-4 space-y-2 text-sm">
+                <div class="flex justify-between"><span class="text-gray-500">Subtotal</span><span>${{ order.subtotal }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Shipping</span><span>{% if order.shipping_cost == 0 %}Free{% else %}${{ order.shipping_cost }}{% endif %}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Tax</span><span>${{ order.tax }}</span></div>
+                {% if order.discount > 0 %}<div class="flex justify-between text-green-600"><span>Discount</span><span>−${{ order.discount }}</span></div>{% endif %}
+                <div class="flex justify-between font-bold text-base border-t border-gray-100 pt-2"><span>Total</span><span class="text-primary">${{ order.total }}</span></div>
+            </div>
+        </div>
+
+        <!-- Shipping Address -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h2 class="text-lg font-bold mb-3"><i class="fas fa-map-marker-alt text-primary mr-2"></i>Shipping Address</h2>
+                <p class="font-semibold">{{ order.full_name }}</p>
+                <p class="text-gray-600">{{ order.shipping_address_line1 }}</p>
+                {% if order.shipping_address_line2 %}<p class="text-gray-600">{{ order.shipping_address_line2 }}</p>{% endif %}
+                <p class="text-gray-600">{{ order.shipping_city }}, {{ order.shipping_zip }}</p>
+                <p class="text-gray-600">{{ order.shipping_country }}</p>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h2 class="text-lg font-bold mb-3"><i class="fas fa-envelope text-primary mr-2"></i>Contact</h2>
+                <p class="text-gray-600">{{ order.email }}</p>
+                {% if order.phone %}<p class="text-gray-600">{{ order.phone }}</p>{% endif %}
+                <p class="mt-3 text-sm text-gray-500">A confirmation email has been sent to <strong>{{ order.email }}</strong></p>
+            </div>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-wrap gap-4 justify-center">
+            <a href="{% url 'shop' %}" class="bg-primary hover:bg-transparent border border-primary text-white hover:text-primary font-bold px-8 py-3 rounded-full transition-all">
+                <i class="fas fa-shopping-bag mr-2"></i>Continue Shopping
+            </a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'account' %}" class="border border-gray-300 hover:border-primary text-gray-700 hover:text-primary font-bold px-8 py-3 rounded-full transition-all">
+                <i class="fas fa-user mr-2"></i>View My Orders
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block newsletter %}{% endblock %}

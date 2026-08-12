@@ -1,0 +1,206 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Cart — MiladStore{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+
+    <!-- Breadcrumb -->
+    <nav class="text-sm mb-6 text-gray-500">
+        <a href="{% url 'home' %}" class="hover:text-primary">Home</a>
+        <span class="mx-2">›</span>
+        <span class="font-semibold text-gray-800">Shopping Cart</span>
+    </nav>
+
+    <h1 class="text-3xl font-bold mb-8">Shopping Cart
+        <span class="text-gray-400 text-lg font-normal">({{ cart_count }} item{{ cart_count|pluralize }})</span>
+    </h1>
+
+    {% if cart_items %}
+    <div class="flex flex-col lg:flex-row gap-8">
+
+        <!-- Cart Items -->
+        <div class="w-full lg:w-2/3" id="cart-items-container">
+
+            <!-- Header row (desktop) -->
+            <div class="hidden lg:grid grid-cols-12 gap-4 pb-3 border-b border-gray-200 text-sm font-semibold text-gray-500 uppercase">
+                <div class="col-span-6">Product</div>
+                <div class="col-span-2 text-center">Price</div>
+                <div class="col-span-2 text-center">Quantity</div>
+                <div class="col-span-2 text-center">Total</div>
+            </div>
+
+            <!-- Items -->
+            {% for item in cart_items %}
+            <div class="cart-row grid grid-cols-12 gap-4 py-6 border-b border-gray-100 items-center" data-key="{{ item.key }}">
+
+                <!-- Product info -->
+                <div class="col-span-12 lg:col-span-6 flex gap-4 items-center">
+                    <button onclick="removeItem('{{ item.key }}')" class="text-gray-300 hover:text-red-500 transition-colors flex-shrink-0" title="Remove">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                    <a href="{% if item.product %}{{ item.product.get_absolute_url }}{% else %}#{% endif %}">
+                        <img src="{{ item.image }}" alt="{{ item.name }}"
+                             class="h-20 w-20 object-cover rounded-lg flex-shrink-0 hover:opacity-80 transition-opacity">
+                    </a>
+                    <div>
+                        <a href="{% if item.product %}{{ item.product.get_absolute_url }}{% else %}#{% endif %}"
+                           class="font-semibold hover:text-primary transition-colors">{{ item.name }}</a>
+                        {% if item.variant_info %}
+                        <p class="text-sm text-gray-500 mt-1">{{ item.variant_info }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Price -->
+                <div class="col-span-4 lg:col-span-2 text-center">
+                    <span class="text-sm text-gray-500 lg:hidden">Price: </span>
+                    <span class="font-semibold">${{ item.price }}</span>
+                </div>
+
+                <!-- Quantity -->
+                <div class="col-span-4 lg:col-span-2 flex justify-center">
+                    <div class="flex items-center border border-gray-300 rounded-full overflow-hidden">
+                        <button onclick="changeQty('{{ item.key }}', {{ item.quantity }} - 1)"
+                                class="w-8 h-8 flex items-center justify-center hover:bg-primary hover:text-white transition-colors font-bold">−</button>
+                        <span class="qty-display w-10 text-center font-semibold">{{ item.quantity }}</span>
+                        <button onclick="changeQty('{{ item.key }}', {{ item.quantity }} + 1)"
+                                class="w-8 h-8 flex items-center justify-center hover:bg-primary hover:text-white transition-colors font-bold">+</button>
+                    </div>
+                </div>
+
+                <!-- Total -->
+                <div class="col-span-4 lg:col-span-2 text-center">
+                    <span class="text-sm text-gray-500 lg:hidden">Total: </span>
+                    <span class="font-bold text-primary item-total">${{ item.total_price }}</span>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Cart Actions -->
+            <div class="flex flex-wrap gap-4 pt-6 justify-between">
+                <a href="{% url 'shop' %}" class="border border-gray-300 hover:border-primary text-gray-700 hover:text-primary font-semibold px-6 py-2 rounded-full transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i>Continue Shopping
+                </a>
+                <button onclick="clearCart()" class="border border-red-300 hover:border-red-500 text-red-400 hover:text-red-600 font-semibold px-6 py-2 rounded-full transition-all">
+                    <i class="fas fa-trash mr-2"></i>Clear Cart
+                </button>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="w-full lg:w-1/3">
+            <div class="bg-gray-50 rounded-xl p-6 sticky top-24">
+                <h2 class="text-xl font-bold mb-6">Order Summary</h2>
+
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Subtotal</span>
+                        <span class="font-semibold" id="summary-subtotal">${{ cart_total }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Shipping</span>
+                        <span class="text-sm text-gray-500">
+                            {% if cart_total >= 50 %}
+                            <span class="text-green-600 font-semibold">Free</span>
+                            {% else %}
+                            $5.99 <span class="text-xs">(free over $50)</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="border-t border-gray-200 pt-3 flex justify-between">
+                        <span class="font-bold text-lg">Estimated Total</span>
+                        <span class="font-bold text-lg text-primary" id="summary-total">
+                            {% if cart_total >= 50 %}${{ cart_total }}{% else %}${{ cart_total|floatformat:2 }}{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <a href="{% url 'checkout' %}"
+                   class="block w-full bg-primary hover:bg-transparent border border-primary text-white hover:text-primary font-bold py-3 px-6 rounded-full text-center transition-all text-lg">
+                    Proceed to Checkout <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+
+                <!-- Payment icons -->
+                <div class="flex justify-center gap-3 mt-4 opacity-60">
+                    <img src="{% static 'images/social_icons/paypal.svg' %}" alt="PayPal" class="h-6">
+                    <img src="{% static 'images/social_icons/stripe.svg' %}" alt="Stripe" class="h-6">
+                    <img src="{% static 'images/social_icons/visa.svg' %}" alt="Visa" class="h-6">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="text-center py-24">
+        <i class="fas fa-shopping-cart text-7xl text-gray-200 mb-6"></i>
+        <h2 class="text-2xl font-semibold text-gray-500 mb-4">Your cart is empty</h2>
+        <p class="text-gray-400 mb-8">Looks like you haven't added anything yet.</p>
+        <a href="{% url 'shop' %}"
+           class="bg-primary hover:bg-transparent border border-primary text-white hover:text-primary font-bold px-8 py-3 rounded-full transition-all inline-block">
+            Start Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function removeItem(key) {
+    fetch(`/cart/remove/${key}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            const row = document.querySelector(`[data-key="${key}"]`);
+            if (row) {
+                row.style.transition = 'opacity 0.3s';
+                row.style.opacity = '0';
+                setTimeout(() => { row.remove(); checkEmpty(); }, 300);
+            }
+            updateCartBadge(data.cart_count);
+            document.getElementById('summary-subtotal').textContent = '$' + parseFloat(data.cart_total).toFixed(2);
+            document.getElementById('summary-total').textContent = '$' + parseFloat(data.cart_total).toFixed(2);
+        }
+    });
+}
+
+function changeQty(key, newQty) {
+    if (newQty < 1) { removeItem(key); return; }
+    fetch(`/cart/update/${key}/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify({ quantity: newQty })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            location.reload(); // Simple reload to recalculate totals
+        }
+    });
+}
+
+function clearCart() {
+    if (!confirm('Clear your entire cart?')) return;
+    document.querySelectorAll('.cart-row').forEach(row => {
+        const key = row.dataset.key;
+        fetch(`/cart/remove/${key}/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+    });
+    setTimeout(() => location.reload(), 500);
+}
+
+function checkEmpty() {
+    if (document.querySelectorAll('.cart-row').length === 0) {
+        location.reload();
+    }
+}
+</script>
+{% endblock %}
