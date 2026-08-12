@@ -17,7 +17,8 @@ class ProductFactory(factory.django.DjangoModelFactory):
     slug = factory.Sequence(lambda n: f"product-{n}")
     price = factory.Faker("pydecimal", left_digits=3, right_digits=2, positive=True)
     category = factory.SubFactory(CategoryFactory)
-
+    status = "published"
+    
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
