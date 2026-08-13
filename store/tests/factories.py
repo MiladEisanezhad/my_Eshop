@@ -1,6 +1,6 @@
 import factory
 
-from store.models import Category, Product, Review, User
+from store.models import Category, Product, ProductImage, Review, User
 
 
 class CategoryFactory(factory.django.DjangoModelFactory):
@@ -10,6 +10,15 @@ class CategoryFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: f"Category {n}")
     slug = factory.Sequence(lambda n: f"category-{n}")
 
+class ProductImageFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProductImage
+
+    product = factory.SubFactory(ProductFactory)
+    image = factory.django.ImageField(color="blue")
+    ordering = factory.Sequence(lambda n: n)
+
+
 class ProductFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Product
@@ -18,7 +27,8 @@ class ProductFactory(factory.django.DjangoModelFactory):
     price = factory.Faker("pydecimal", left_digits=3, right_digits=2, positive=True)
     category = factory.SubFactory(CategoryFactory)
     status = "published"
-    
+    Images = factory.RelatedFactory(ProductImageFactory, factory_related_name="product")
+
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
@@ -36,3 +46,10 @@ class ReviewFactory(factory.django.DjangoModelFactory):
     rating = factory.Faker("random_int", min=1, max=5)
     is_approved = True
     
+class ProductImageFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProductImage
+
+    product = factory.SubFactory(ProductFactory)
+    image = factory.django.ImageField(color="blue")
+    ordering = factory.Sequence(lambda n: n)
