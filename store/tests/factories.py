@@ -1,6 +1,6 @@
 import factory
 
-from store.models import Category, Product, ProductImage, Review, User
+from store.models import Category, Coupon, Product, ProductImage, Review, User
 
 
 class CategoryFactory(factory.django.DjangoModelFactory):
@@ -44,3 +44,15 @@ class ProductImageFactory(factory.django.DjangoModelFactory):
     product = factory.SubFactory(ProductFactory)
     image = factory.django.ImageField(color="blue")
     ordering = factory.Sequence(lambda n: n)
+    
+class CouponFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Coupon
+
+    code = factory.Sequence(lambda n: f"COUPON{n}")
+    discount_type = factory.Iterator("percentage")
+    discount_value = factory.Faker("pydecimal", left_digits=2, right_digits=2, positive=True)
+    minimum_order_value = factory.Faker("pydecimal", left_digits=3, right_digits=2, positive=True)
+    valid_from = factory.Faker("date_time_this_year", before_now=True, after_now=False)
+    valid_to = factory.Faker("date_time_this_year", before_now=False, after_now=True)
+    is_active = True
