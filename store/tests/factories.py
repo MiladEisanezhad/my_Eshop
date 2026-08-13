@@ -10,14 +10,6 @@ class CategoryFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: f"Category {n}")
     slug = factory.Sequence(lambda n: f"category-{n}")
 
-class ProductImageFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = ProductImage
-
-    product = factory.SubFactory(ProductFactory)
-    image = factory.django.ImageField(color="blue")
-    ordering = factory.Sequence(lambda n: n)
-
 
 class ProductFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -27,8 +19,7 @@ class ProductFactory(factory.django.DjangoModelFactory):
     price = factory.Faker("pydecimal", left_digits=3, right_digits=2, positive=True)
     category = factory.SubFactory(CategoryFactory)
     status = "published"
-    Images = factory.RelatedFactory(ProductImageFactory, factory_related_name="product")
-
+    
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User

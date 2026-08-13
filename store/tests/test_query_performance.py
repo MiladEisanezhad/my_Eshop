@@ -1,7 +1,9 @@
+from django.db.models import Prefetch
 from django.test.utils import CaptureQueriesContext
 from django.db import connection
 import pytest
 
+from store.models import Product , ProductImage
 from store.tests.factories import CategoryFactory, ProductFactory, ProductImageFactory, ProductImageFactory, ReviewFactory, UserFactory
 
 @pytest.mark.django_db
@@ -27,18 +29,39 @@ def test_product_reviews_use_select_related(django_assert_num_queries):
         #     )
         # )
 @pytest.mark.django_db
-def test_shop_view_product_list_query_count():
-    c1 = CategoryFactory()
-    c2 = CategoryFactory()
-    c3 = CategoryFactory()
-    user1 = UserFactory()
-    user2 = UserFactory()
-    user3 = UserFactory()
-    
-    p1 = ProductFactory(category=c1, Images=[ProductImageFactory(), ProductImageFactory()])
-    p2 = ProductFactory(category=c2, Images=[ProductImageFactory()])
-    p3 = ProductFactory(category=c3, Images=[ProductImageFactory()])
-    
-    ReviewFactory(product=p1, user=user1)
-    ReviewFactory(product=p2, user=user2)
-    ReviewFactory(product=p3, user=user3)
+def test_shop_view_product_list_query_count(django_assert_num_queries):
+    categories = CategoryFactory.create_batch(3)
+    users = UserFactory.create_batch(3)
+
+    products = [
+        ProductFactory(category=category)
+        for category in categories
+    ]
+
+    image_counts = [2, 3, 2]
+
+    for product, count in zip(products, image_counts):
+        ProductImageFactory.create_batch(count, product=product)
+
+    for product, user in zip(products, users):
+        ReviewFactory(product=product, user=user)
+
+    with django_assert_num_queries(2):
+        qs = (
+            Product.objects.filter(status="published")
+            .select_related("category", "brand")
+            .prefetch_related(
+                Prefetch(
+                    "images",
+                    queryset=ProductImage.objects.order_by("ordering"),
+                    to_attr="prefetched_images",
+                )
+            )
+        )
+
+        for product in qs:
+            _ = product.category.name
+            _ = product.brand.name if product.brand else None
+
+            for image in product.prefetched_images:
+                _ = image.image.url
