@@ -129,7 +129,7 @@ else:
     }
 
     AWS_S3_CUSTOM_DOMAIN = (
-        f"hdeyyjgbrelmfojojzar.supabase.co/storage/v1/object/public/"
+        f"{os.environ.get('SUPABASE_PROJECT_REF')}.supabase.co/storage/v1/object/public/"
         f"{AWS_STORAGE_BUCKET_NAME}"
     )
 
@@ -140,12 +140,6 @@ else:
     AWS_QUERYSTRING_AUTH = False
     AWS_S3_SIGNATURE_VERSION = "s3v4"
     AWS_S3_ADDRESSING_STYLE = "path"
-
-# Fix the NameError in your print statement
-_storage = STORAGES["default"]["BACKEND"]
-print(f"DEBUG VALUE IS: {DEBUG}", file=sys.stderr)
-print(f"STORAGE BACKEND: {_storage}", file=sys.stderr)
-print(f"ENDPOINT: {os.environ.get('SUPABASE_ENDPOINT_URL')}", file=sys.stderr)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
