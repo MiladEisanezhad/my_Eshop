@@ -34,3 +34,6 @@ dist/
 
 # Migrations (optional)
 .editorconfig
+
+#zip files 
+*.zip
