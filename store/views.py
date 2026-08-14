@@ -731,3 +731,7 @@ def custom_404(request, exception):
 def my_view(request):
     tech_stack = ["html", "js", "laravel", "php", "react", "tailwind", "typescript"]
     return render(request, "store/index.html", {"tech_stack": tech_stack})
+
+
+def health_check(request):
+    return JsonResponse({"status": "ok"})

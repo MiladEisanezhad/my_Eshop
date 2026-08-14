@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from store.views import health_check
 
 urlpatterns = [
     # Home
@@ -53,4 +54,5 @@ urlpatterns = [
         views.SearchSuggestionsView.as_view(),
         name='search_suggestions'
     ),
+    path("health/", health_check, name="health"),
 ]
