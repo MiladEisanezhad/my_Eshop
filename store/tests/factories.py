@@ -1,3 +1,5 @@
+from datetime import timezone
+
 import factory
 
 from store.models import Category, Coupon, Product, ProductImage, Review, User
@@ -50,9 +52,9 @@ class CouponFactory(factory.django.DjangoModelFactory):
         model = Coupon
 
     code = factory.Sequence(lambda n: f"COUPON{n}")
-    discount_type = factory.Iterator("percentage")
+    discount_type = "percentage"
     discount_value = factory.Faker("pydecimal", left_digits=2, right_digits=2, positive=True)
-    minimum_order_value = factory.Faker("pydecimal", left_digits=3, right_digits=2, positive=True)
-    valid_from = factory.Faker("date_time_this_year", before_now=True, after_now=False)
-    valid_to = factory.Faker("date_time_this_year", before_now=False, after_now=True)
+    minimum_order = factory.Faker("pydecimal", left_digits=3, right_digits=2, positive=True)
+    valid_from = factory.Faker("date_time_this_year", before_now=True, after_now=False, tzinfo=timezone.utc)
+    valid_until = factory.Faker("date_time_this_year", before_now=False, after_now=True, tzinfo=timezone.utc)
     is_active = True

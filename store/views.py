@@ -377,7 +377,7 @@ class CheckoutView(View):
             return None, Decimal("0.00")
         try:
             coupon = Coupon.objects.get(code=code)
-            if not coupon.is_valid():
+            if not coupon.is_valid() or subtotal < coupon.minimum_order:
                 raise ValueError
             if coupon.discount_type == "percentage":
                 discount = (subtotal * coupon.discount_value / 100).quantize(
