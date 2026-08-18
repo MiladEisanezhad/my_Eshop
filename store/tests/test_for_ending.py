@@ -1,7 +1,5 @@
 import pytest
-from store.models import Review
-from django.contrib.auth.models import User
-from .factories import CategoryFactory, ProductFactory, UserFactory, ReviewFactory
+from .factories import ProductFactory, UserFactory, ReviewFactory
 
 @pytest.mark.django_db
 def test_approved_review_updates_product_rating():
@@ -21,4 +19,28 @@ def test_query_numbers_is_fixed_number(django_assert_num_queries):
     with django_assert_num_queries(1):
         reviews = list(product1.reviews.filter(is_approved=True).select_related("user"))
         for review in reviews:
+            _ = review.user.username
+            
+            
+# @pytest.mark.django_db
+# def test_product_detail_view_uses_select_related(django_assert_num_queries):
+#     product1 = ProductFactory()
+#     review1 = ReviewFactory(product=product1, is_approved=True)
+#     ReviewFactory(product=product1, is_approved=True)
+#     ReviewFactory(product=product1, is_approved=True)
+#     view = ProductDetailView()
+#     request = RequestFactory().get(f"/products/{product1.slug}/")
+#     request.user = review1.user
+#     with django_assert_num_queries(1):
+#         response = view.get(request, slug=product1.slug)
+#         for review in response.context_data["reviews"]:
+#             _ = review.user.username
+            
+@pytest.mark.django_db
+def test_product_detail_view_uses_select_related2(django_assert_num_queries, client):
+    product1 = ProductFactory()
+    ReviewFactory.create_batch(3, product=product1, is_approved=True)
+    with django_assert_num_queries(2):
+        response = client.get(f"/product/{product1.slug}/")
+        for review in response.context["reviews"]:
             _ = review.user.username
