@@ -8,7 +8,7 @@ from django.core.cache import cache
 def serialize_products(products):
     """
     products: an iterable of Product instances (already fetched with
-    select_related/prefetch_related for category + images).
+    select_related/prefetch_related for category + images).!
     Returns: a list of plain dicts — safe to store in Redis.
     """
     result = []
