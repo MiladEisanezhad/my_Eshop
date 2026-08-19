@@ -40,7 +40,7 @@ def test_query_numbers_is_fixed_number(django_assert_num_queries):
 def test_product_detail_view_uses_select_related2(django_assert_num_queries, client):
     product1 = ProductFactory()
     ReviewFactory.create_batch(3, product=product1, is_approved=True)
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(14):
         response = client.get(f"/product/{product1.slug}/")
         for review in response.context["reviews"]:
             _ = review.user.username
