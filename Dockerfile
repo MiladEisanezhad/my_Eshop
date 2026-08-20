@@ -15,4 +15,4 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "python manage.py migrate && gunicorn tailstore.wsgi:application --bind 0.0.0.0:8000 --timeout 120 --workers 2 --worker-class gthread --threads 4"]
+CMD ["sh", "-c", "python manage.py migrate && exec gunicorn tailstore.wsgi:application --bind 0.0.0.0:$PORT --timeout 120 --workers 2 --worker-class gthread --threads 4"]
