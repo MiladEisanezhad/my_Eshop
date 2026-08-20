@@ -24,3 +24,4 @@ volumes:
   postgres_data:
   static_files:
   media_files:
+  redis_data:
