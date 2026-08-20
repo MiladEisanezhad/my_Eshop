@@ -47,7 +47,7 @@
                         <li>
                             <a href="{{ cat.get_absolute_url }}" class="flex justify-between items-center hover:text-primary {% if selected_category.id == cat.id %}text-primary font-semibold{% endif %}">
                                 <span>{{ cat.name }}</span>
-                                <span class="text-xs text-gray-400">({{ cat.products.count }})</span>
+                                <span class="text-xs text-gray-400">({{ cat.product_count }})</span>
                             </a>
                             {% if cat.children.exists %}
                             <ul class="ml-4 mt-1 space-y-1">

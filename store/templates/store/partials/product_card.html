@@ -1,12 +1,19 @@
 {% load static %}
 <div class="w-full sm:w-1/2 lg:w-1/4 px-4 mb-8">
-  <div class="bg-white p-3 rounded-lg shadow-lg group relative flex flex-col" style="height: 620px">
+  <div
+    class="bg-white p-3 rounded-lg shadow-lg group relative flex flex-col"
+    style="height: 620px"
+  >
     <!-- Badges -->
     <div class="absolute top-4 left-4 flex flex-col gap-1 z-10">
       {% if product.is_new_arrival %}
-      <span class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">NEW</span>
+      <span class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded"
+        >NEW</span
+      >
       {% endif %} {% if product.discount_percent %}
-      <span class="bg-primary text-white text-xs font-bold px-2 py-1 rounded">-{{ product.discount_percent }}%</span>
+      <span class="bg-primary text-white text-xs font-bold px-2 py-1 rounded"
+        >-{{ product.discount_percent }}%</span
+      >
       {% endif %}
     </div>
 
@@ -29,7 +36,10 @@
 
     <!-- Info -->
     <div class="flex flex-col flex-1">
-      <a href="{{ product.get_absolute_url }}" class="product-name mb-1 block hover:text-primary transition-colors">
+      <a
+        href="{{ product.get_absolute_url }}"
+        class="product-name mb-1 block hover:text-primary transition-colors"
+      >
         {{ product.name }}
       </a>
       <p class="my-1 text-sm text-gray-500">{{ product.category.name }}</p>
@@ -41,16 +51,22 @@
           class="fas fa-star text-xs {% if forloop.counter <= product.rating_avg %}star-filled{% else %}star-empty{% endif %}"
         ></i>
         {% endfor %}
-        <span class="text-xs text-gray-500 ml-1">({{ product.rating_count }})</span>
+        <span class="text-xs text-gray-500 ml-1"
+          >({{ product.rating_count }})</span
+        >
       </div>
       {% endif %}
 
       <div class="flex items-center mb-4">
-        <span class="text-lg font-bold {% if product.is_on_sale %}text-primary{% else %}text-gray-900{% endif %}">
+        <span
+          class="text-lg font-bold {% if product.is_on_sale %}text-primary{% else %}text-gray-900{% endif %}"
+        >
           ${{ product.price }}
         </span>
         {% if product.compare_price %}
-        <span class="text-sm line-through ml-2 text-gray-400">${{ product.compare_price }}</span>
+        <span class="text-sm line-through ml-2 text-gray-400"
+          >${{ product.compare_price }}</span
+        >
         {% endif %}
       </div>
 
@@ -72,6 +88,6 @@
         </button>
         {% endif %}
       </div>
+      </div>
     </div>
-  </div>
 </div>

@@ -118,7 +118,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=300, unique=True, db_index=True)
     category = models.ForeignKey(
         Category, related_name="products", on_delete=models.PROTECT
-    )
+        )
     brand = models.ForeignKey(
         Brand, related_name="products", null=True, blank=True, on_delete=models.SET_NULL
     )

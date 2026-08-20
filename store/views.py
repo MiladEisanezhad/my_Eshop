@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.db.models import Max, Min, Q, Prefetch, F
+from django.db.models import Max, Min, Q, Prefetch, F, Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
@@ -160,7 +160,12 @@ class ShopView(ListView):
         ctx = super().get_context_data(**kwargs)
         ctx.update(
             {
-                "categories": Category.objects.filter(is_active=True, parent=None),
+                "categories": Category.objects.filter(is_active=True, parent=None)
+                .prefetch_related("children").annotate(
+                    product_count=Count(
+                        "products", filter=Q(products__status="published")
+                        )
+                    ),
                 "brands": Brand.objects.filter(is_active=True),
                 "selected_category": getattr(self, "_selected_category", None),
                 "current_sort": getattr(self, "_current_sort", "newest"),

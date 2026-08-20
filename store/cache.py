@@ -7,11 +7,11 @@ from django.core.cache import cache
 
 def serialize_products(products):
     """
-    products: an iterable of Product instances (already fetched with
-    select_related/prefetch_related for category + images).!
-    Returns: a list of plain dicts — safe to store in Redis.
+    Convert Product model instances into plain dictionaries
+    that preserve the interface expected by product_card.html.
     """
     result = []
+
     for p in products:
         result.append(
             {
@@ -23,15 +23,18 @@ def serialize_products(products):
                 "discount_percent": p.discount_percent,
                 "is_on_sale": p.is_on_sale,
                 "is_new_arrival": p.is_new_arrival,
+                "is_in_stock": p.is_in_stock,
                 "rating_avg": str(p.rating_avg),
                 "rating_count": p.rating_count,
-                "category_name": p.category.name if p.category_id else "",
-                "image_url": p.get_main_image_url(),
-                "absolute_url": p.get_absolute_url(),
+                "category": {
+                    "name": p.category.name if p.category_id else "",
+                },
+                "get_main_image_url": p.get_main_image_url(),
+                "get_absolute_url": p.get_absolute_url(),
             }
         )
-    return result
 
+    return result
 # ── Cache orchestration (cache-aside pattern) ────────────────────────
 
 # ONE generic function, reused for featured/new_arrivals/on_sale/etc.
